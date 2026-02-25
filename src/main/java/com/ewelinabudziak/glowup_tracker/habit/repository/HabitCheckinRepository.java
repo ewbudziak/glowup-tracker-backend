@@ -1,4 +1,4 @@
-package com.ewelinabudziak.glowup_tracker.habit.repsitory;
+package com.ewelinabudziak.glowup_tracker.habit.repository;
 
 import com.ewelinabudziak.glowup_tracker.habit.entity.HabitCheckin;
 import org.springframework.data.jpa.repository.JpaRepository;

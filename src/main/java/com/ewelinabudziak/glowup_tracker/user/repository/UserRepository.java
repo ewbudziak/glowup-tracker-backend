@@ -1,4 +1,4 @@
-package com.ewelinabudziak.glowup_tracker.user.repsitory;
+package com.ewelinabudziak.glowup_tracker.user.repository;
 
 import com.ewelinabudziak.glowup_tracker.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

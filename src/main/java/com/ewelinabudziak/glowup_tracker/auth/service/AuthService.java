@@ -3,7 +3,7 @@ package com.ewelinabudziak.glowup_tracker.auth.service;
 import com.ewelinabudziak.glowup_tracker.auth.dto.LoginRequest;
 import com.ewelinabudziak.glowup_tracker.auth.dto.RegisterRequest;
 import com.ewelinabudziak.glowup_tracker.user.entity.User;
-import com.ewelinabudziak.glowup_tracker.user.repsitory.UserRepository;
+import com.ewelinabudziak.glowup_tracker.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
