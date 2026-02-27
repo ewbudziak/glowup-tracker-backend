@@ -20,8 +20,8 @@ public class HabitService {
         this.habitRepository = habitRepository;
     }
 
-    public HabitResponse createHabit(Long id, HabitCreateRequest habitCreateRequest){
-        User user = userRepository.findById(id)
+    public HabitResponse createHabit(Long userId, HabitCreateRequest habitCreateRequest){
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Habit habit = new Habit(user, habitCreateRequest.name(), habitCreateRequest.frequencyType(), habitCreateRequest.targetPerWeek());
@@ -30,8 +30,8 @@ public class HabitService {
         return toHabitResponse(habit);
     }
 
-    public List<HabitResponse> listOfHabits(Long id) {
-        return habitRepository.findAllByUserId(id).stream()
+    public List<HabitResponse> listOfHabits(Long userId) {
+        return habitRepository.findAllByUserId(userId).stream()
                 .map(this::toHabitResponse)
                 .toList();
     }
