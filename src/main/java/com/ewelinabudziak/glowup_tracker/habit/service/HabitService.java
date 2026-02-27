@@ -1,5 +1,6 @@
 package com.ewelinabudziak.glowup_tracker.habit.service;
 
+import com.ewelinabudziak.glowup_tracker.exception.NotFoundException;
 import com.ewelinabudziak.glowup_tracker.habit.dto.HabitCreateRequest;
 import com.ewelinabudziak.glowup_tracker.habit.dto.HabitResponse;
 import com.ewelinabudziak.glowup_tracker.habit.entity.Habit;
@@ -22,7 +23,7 @@ public class HabitService {
 
     public HabitResponse createHabit(Long userId, HabitCreateRequest habitCreateRequest){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Habit habit = new Habit(user, habitCreateRequest.name(), habitCreateRequest.frequencyType(), habitCreateRequest.targetPerWeek());
         habit = habitRepository.save(habit);
@@ -31,6 +32,10 @@ public class HabitService {
     }
 
     public List<HabitResponse> listOfHabits(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
+
         return habitRepository.findAllByUserId(userId).stream()
                 .map(this::toHabitResponse)
                 .toList();

@@ -2,6 +2,7 @@ package com.ewelinabudziak.glowup_tracker.auth.service;
 
 import com.ewelinabudziak.glowup_tracker.auth.dto.LoginRequest;
 import com.ewelinabudziak.glowup_tracker.auth.dto.RegisterRequest;
+import com.ewelinabudziak.glowup_tracker.exception.ConflictException;
 import com.ewelinabudziak.glowup_tracker.user.entity.User;
 import com.ewelinabudziak.glowup_tracker.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,7 @@ public class AuthService {
 
     public void register(RegisterRequest registerRequest) {
         if(userRepository.existsByEmail(registerRequest.email())) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new ConflictException("Email already in use");
         }
 
         User user = new User(registerRequest.email(), passwordEncoder.encode(registerRequest.password()));
@@ -28,10 +29,10 @@ public class AuthService {
 
     public void login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+                .orElseThrow(() -> new ConflictException("Invalid credentials"));
 
         if(!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new ConflictException("Invalid credentials");
         }
     }
 }

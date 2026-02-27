@@ -1,5 +1,7 @@
 package com.ewelinabudziak.glowup_tracker.habit.service;
 
+import com.ewelinabudziak.glowup_tracker.exception.ConflictException;
+import com.ewelinabudziak.glowup_tracker.exception.NotFoundException;
 import com.ewelinabudziak.glowup_tracker.habit.dto.HabitCheckinResponse;
 import com.ewelinabudziak.glowup_tracker.habit.entity.Habit;
 import com.ewelinabudziak.glowup_tracker.habit.entity.HabitCheckin;
@@ -22,12 +24,12 @@ public class HabitCheckinService {
 
     public HabitCheckinResponse checkinHabit(Long habitId) {
         Habit habit = habitRepository.findById(habitId)
-                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+                .orElseThrow(() -> new NotFoundException("Habit not found"));
 
         LocalDate today = LocalDate.now();
 
         if(habitCheckinRepository.existsByHabitIdAndDate(habitId, today)){
-            throw new IllegalArgumentException("Habit already checked in today");
+            throw new ConflictException("Habit already checked in today");
         }
 
         HabitCheckin habitCheckin = new HabitCheckin(habit, today);
@@ -39,7 +41,7 @@ public class HabitCheckinService {
 
     public List<HabitCheckinResponse> listCheckins(Long habitId) {
         if(!habitRepository.existsById(habitId)) {
-            throw new IllegalArgumentException("habit not faound.");
+            throw new NotFoundException("Habit not found");
         }
 
         return habitCheckinRepository.findAllByHabitIdOrderByDateDesc(habitId).stream()
