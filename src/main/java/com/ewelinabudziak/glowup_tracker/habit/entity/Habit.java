@@ -4,6 +4,8 @@ import com.ewelinabudziak.glowup_tracker.user.entity.User;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "habits")
@@ -29,6 +31,9 @@ public class Habit {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
+
+    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HabitCheckin> checkins = new ArrayList<>();
 
     public Habit() {
     }
