@@ -5,4 +5,5 @@ public record HabitStatsResponse(
         boolean doneToday,
         int currentStreak,
         int longestStreak
-) { }
+) {
+}

@@ -7,6 +7,9 @@ import com.ewelinabudziak.glowup_tracker.habit.entity.Habit;
 import com.ewelinabudziak.glowup_tracker.habit.entity.HabitCheckin;
 import com.ewelinabudziak.glowup_tracker.habit.repository.HabitCheckinRepository;
 import com.ewelinabudziak.glowup_tracker.habit.repository.HabitRepository;
+import com.ewelinabudziak.glowup_tracker.user.entity.User;
+import com.ewelinabudziak.glowup_tracker.user.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,19 +19,25 @@ import java.util.List;
 public class HabitCheckinService {
     private final HabitCheckinRepository habitCheckinRepository;
     private final HabitRepository habitRepository;
+    private final UserRepository userRepository;
 
-    public HabitCheckinService(HabitCheckinRepository habitCheckinRepository, HabitRepository habitRepository) {
+    public HabitCheckinService(HabitCheckinRepository habitCheckinRepository, HabitRepository habitRepository, UserRepository userRepository) {
         this.habitCheckinRepository = habitCheckinRepository;
         this.habitRepository = habitRepository;
+        this.userRepository = userRepository;
     }
 
-    public HabitCheckinResponse checkinHabit(Long habitId) {
-        Habit habit = habitRepository.findById(habitId)
+    public HabitCheckinResponse checkinHabit(String email, Long habitId) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Habit habit = habitRepository.findByIdAndUserId(habitId, user.getId())
                 .orElseThrow(() -> new NotFoundException("Habit not found"));
 
         LocalDate today = LocalDate.now();
 
-        if(habitCheckinRepository.existsByHabitIdAndDate(habitId, today)){
+        if (habitCheckinRepository.existsByHabitIdAndDate(habitId, today)) {
             throw new ConflictException("Habit already checked in today");
         }
 
@@ -36,15 +45,17 @@ public class HabitCheckinService {
         habitCheckin = habitCheckinRepository.save(habitCheckin);
 
         return toHabitCheckinResponse(habitCheckin);
-
     }
 
-    public List<HabitCheckinResponse> listCheckins(Long habitId) {
-        if(!habitRepository.existsById(habitId)) {
-            throw new NotFoundException("Habit not found");
-        }
+    public List<HabitCheckinResponse> listCheckins(String email, Long habitId) {
 
-        return habitCheckinRepository.findAllByHabitIdOrderByDateDesc(habitId).stream()
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+
+        Habit habit = habitRepository.findByIdAndUserId(habitId, user.getId())
+                .orElseThrow(() -> new NotFoundException("Habit not found"));
+
+        return habitCheckinRepository.findAllByHabitIdOrderByDateDesc(habit.getId()).stream()
                 .map(this::toHabitCheckinResponse)
                 .toList();
     }

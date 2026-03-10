@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface HabitRepository extends JpaRepository<Habit, Long> {
     List<Habit> findAllByUserId(Long id);
+
     Optional<Habit> findByIdAndUserId(Long id, Long userId);
 }

@@ -2,9 +2,12 @@ package com.ewelinabudziak.glowup_tracker.habit.service;
 
 import com.ewelinabudziak.glowup_tracker.exception.NotFoundException;
 import com.ewelinabudziak.glowup_tracker.habit.dto.HabitStatsResponse;
+import com.ewelinabudziak.glowup_tracker.habit.entity.Habit;
 import com.ewelinabudziak.glowup_tracker.habit.entity.HabitCheckin;
 import com.ewelinabudziak.glowup_tracker.habit.repository.HabitCheckinRepository;
 import com.ewelinabudziak.glowup_tracker.habit.repository.HabitRepository;
+import com.ewelinabudziak.glowup_tracker.user.entity.User;
+import com.ewelinabudziak.glowup_tracker.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,27 +15,31 @@ import java.util.List;
 
 @Service
 public class HabitStatsService {
-    private HabitRepository habitRepository;
-    private HabitCheckinRepository habitCheckinRepository;
+    private final UserRepository userRepository;
+    private final HabitRepository habitRepository;
+    private final HabitCheckinRepository habitCheckinRepository;
 
-    public HabitStatsService(HabitRepository habitRepository, HabitCheckinRepository habitCheckinRepository) {
+    public HabitStatsService(HabitRepository habitRepository, HabitCheckinRepository habitCheckinRepository, UserRepository userRepository) {
         this.habitRepository = habitRepository;
         this.habitCheckinRepository = habitCheckinRepository;
+        this.userRepository = userRepository;
     }
 
-    public HabitStatsResponse getStats(Long habitId) {
+    public HabitStatsResponse getStats(String email, Long habitId) {
         LocalDate today = LocalDate.now();
         boolean doneToday = false;
         int currentStreak = 0;
         int longestStreak = 0;
 
-        if(!habitRepository.existsById(habitId)){
-            throw new NotFoundException("Habit not found");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        List<HabitCheckin> habitCheckins = habitCheckinRepository.findAllByHabitIdOrderByDateDesc(habitId);
+        Habit habit = habitRepository.findByIdAndUserId(habitId, user.getId())
+                .orElseThrow(() -> new NotFoundException("Habit not found"));
 
-        if(habitCheckins.isEmpty()) {
+        List<HabitCheckin> habitCheckins = habitCheckinRepository.findAllByHabitIdOrderByDateDesc(habit.getId());
+
+        if (habitCheckins.isEmpty()) {
             return new HabitStatsResponse(
                     habitId,
                     doneToday,
@@ -41,12 +48,12 @@ public class HabitStatsService {
             );
         }
 
-        doneToday = habitCheckinRepository.existsByHabitIdAndDate(habitId, today);
+        doneToday = habitCheckinRepository.existsByHabitIdAndDate(habit.getId(), today);
 
-        if(doneToday) {
+        if (doneToday) {
             LocalDate expectedDate = today;
-            for(HabitCheckin habit : habitCheckins){
-                if(habit.getDate().equals(expectedDate)){
+            for (HabitCheckin habitCheckin : habitCheckins) {
+                if (habitCheckin.getDate().equals(expectedDate)) {
                     currentStreak++;
                     expectedDate = expectedDate.minusDays(1);
                 } else {

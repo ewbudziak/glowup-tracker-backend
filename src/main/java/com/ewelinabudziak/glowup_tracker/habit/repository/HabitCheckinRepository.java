@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface HabitCheckinRepository extends JpaRepository<HabitCheckin, Long> {
     Optional<HabitCheckin> findByHabitIdAndDate(Long habitId, LocalDate date);
+
     boolean existsByHabitIdAndDate(Long habitId, LocalDate date);
+
     List<HabitCheckin> findAllByHabitIdOrderByDateDesc(Long habitId);
 }

@@ -23,28 +23,35 @@ public class HabitService {
         this.habitRepository = habitRepository;
     }
 
-    public HabitResponse createHabit(Long userId, HabitCreateRequest habitCreateRequest){
-        User user = userRepository.findById(userId)
+    public HabitResponse createHabit(String email, HabitCreateRequest habitCreateRequest) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Habit habit = new Habit(user, habitCreateRequest.name(), habitCreateRequest.frequencyType(), habitCreateRequest.targetPerWeek());
-        habit = habitRepository.save(habit);
 
+        habit = habitRepository.save(habit);
         return toHabitResponse(habit);
     }
 
     @Transactional
-    public void deleteHabit(Long userId, Long habitId){
+    public void deleteHabit(String email, Long habitId) {
 
-        Habit habit = habitRepository.findByIdAndUserId(habitId, userId)
-                        .orElseThrow(() -> new NotFoundException("Habit not found"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        Habit habit = habitRepository.findByIdAndUserId(habitId, user.getId())
+                .orElseThrow(() -> new NotFoundException("Habit not found"));
 
         habitRepository.delete(habit);
     }
 
     @Transactional
-    public HabitResponse updateHabit(Long userId, Long habitId, HabitUpdateRequest habitUpdateRequest){
-        Habit habit = habitRepository.findByIdAndUserId(habitId, userId)
+    public HabitResponse updateHabit(String email, Long habitId, HabitUpdateRequest habitUpdateRequest) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+
+        Habit habit = habitRepository.findByIdAndUserId(habitId, user.getId())
                 .orElseThrow(() -> new NotFoundException("Habit not found"));
 
         habit.setName(habitUpdateRequest.name());
@@ -52,20 +59,18 @@ public class HabitService {
         habit.setTargetPerWeek(habitUpdateRequest.targetPerWeek());
 
         return toHabitResponse(habit);
-
     }
 
-    public List<HabitResponse> listOfHabits(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User not found");
-        }
+    public List<HabitResponse> listOfHabits(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        return habitRepository.findAllByUserId(userId).stream()
+        return habitRepository.findAllByUserId(user.getId()).stream()
                 .map(this::toHabitResponse)
                 .toList();
     }
 
-    private HabitResponse toHabitResponse(Habit h){
+    private HabitResponse toHabitResponse(Habit h) {
         return new HabitResponse(
                 h.getId(),
                 h.getUser().getId(),

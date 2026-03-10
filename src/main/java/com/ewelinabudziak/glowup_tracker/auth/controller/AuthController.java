@@ -1,5 +1,6 @@
 package com.ewelinabudziak.glowup_tracker.auth.controller;
 
+import com.ewelinabudziak.glowup_tracker.auth.dto.AuthResponse;
 import com.ewelinabudziak.glowup_tracker.auth.dto.LoginRequest;
 import com.ewelinabudziak.glowup_tracker.auth.dto.RegisterRequest;
 import com.ewelinabudziak.glowup_tracker.auth.service.AuthService;
@@ -21,14 +22,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         return ResponseEntity.status(201).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-        authService.login(loginRequest);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 }

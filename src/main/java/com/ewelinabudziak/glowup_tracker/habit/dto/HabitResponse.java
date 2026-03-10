@@ -12,4 +12,5 @@ public record HabitResponse(
         FrequencyType frequencyType,
         int targetPerWeek,
         Instant createdAt
-) {}
+) {
+}

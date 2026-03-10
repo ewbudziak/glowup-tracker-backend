@@ -10,4 +10,5 @@ public record HabitUpdateRequest(
         @NotBlank @Size(max = 80) String name,
         @NotNull FrequencyType frequencyType,
         @Min(1) int targetPerWeek
-        ) { }
+) {
+}

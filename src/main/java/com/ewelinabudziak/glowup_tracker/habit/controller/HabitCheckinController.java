@@ -3,6 +3,7 @@ package com.ewelinabudziak.glowup_tracker.habit.controller;
 import com.ewelinabudziak.glowup_tracker.habit.dto.HabitCheckinResponse;
 import com.ewelinabudziak.glowup_tracker.habit.service.HabitCheckinService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,13 +18,15 @@ public class HabitCheckinController {
     }
 
     @PostMapping
-    public ResponseEntity<HabitCheckinResponse> checkin(@PathVariable Long habitId){
-        HabitCheckinResponse habitCheckinResponse = habitCheckinService.checkinHabit(habitId);
+    public ResponseEntity<HabitCheckinResponse> checkin(@PathVariable Long habitId, Authentication authentication) {
+        String email = authentication.getName();
+        HabitCheckinResponse habitCheckinResponse = habitCheckinService.checkinHabit(email, habitId);
         return ResponseEntity.status(201).body(habitCheckinResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<HabitCheckinResponse>> listHabitsCheckin(@PathVariable Long habitId){
-        return ResponseEntity.ok(habitCheckinService.listCheckins(habitId));
+    public ResponseEntity<List<HabitCheckinResponse>> listCheckins(@PathVariable Long habitId, Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(habitCheckinService.listCheckins(email, habitId));
     }
 }
