@@ -18,7 +18,7 @@ The backend follows a layered architecture:
 
 Controller → Service → Repository → Database
 
-``
+```
 
 ## Tech Stack
 
