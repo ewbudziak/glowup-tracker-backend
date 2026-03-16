@@ -13,12 +13,12 @@ The system allows users to:
 - mark habits as completed for the current day
 - view check-in history
 - track habit streak statistics
-```md
+
 The backend follows a layered architecture:
 
+```md
 Controller → Service → Repository → Database
-
-``
+```
 
 ## Tech Stack
 
